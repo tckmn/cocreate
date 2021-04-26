@@ -110,6 +110,18 @@ export svgExtremes = (svg, elt, relative) ->
   max: svgPoint svg, bbox.x + stroke + bbox.width,
                      bbox.y + stroke + bbox.height, transform
 
+export objExtremes = (obj) ->
+  extremes = unionExtremes (
+    for p in obj.pts ? []
+      min: p
+      max: p
+  )
+  extremes.min.x += obj.tx ? 0
+  extremes.max.x += obj.tx ? 0
+  extremes.min.y += obj.ty ? 0
+  extremes.max.y += obj.ty ? 0
+  extremes
+
 export unionExtremes = (extremes) ->
   min =
     x: Infinity

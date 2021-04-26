@@ -258,14 +258,22 @@ export DrawApp = React.memo ->
         return if e.target.tagName in ['INPUT', 'TEXTAREA']
         e.preventDefault()
         if (json = e.clipboardData.getData 'application/cocreate-objects')
+          parsed = JSON.parse json
+          origin = currentBoard().relativePoint 0.5, 0.5
+          extremes = dom.unionExtremes (dom.objExtremes obj for obj in parsed)
+          offset = snapPoint
+            x: (extremes.min.x + extremes.max.x) / 2 - origin.x
+            y: (extremes.min.y + extremes.max.y) / 2 - origin.y
           objects =
-            for obj in JSON.parse json
+            for obj in parsed
               delete obj._id
               delete obj.id  # object ID when pasting from history
               delete obj.created
               delete obj.updated
               obj.room = currentRoom.get().id
               obj.page = currentPage.get().id
+              obj.tx = (obj.tx ? 0) - offset.x
+              obj.ty = (obj.ty ? 0) - offset.y
               obj._id = Meteor.apply 'objectNew', [obj], returnStubValue: true
               obj
           undoStack.push
